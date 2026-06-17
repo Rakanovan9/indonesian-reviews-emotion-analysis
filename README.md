@@ -38,22 +38,50 @@ Ulasan Play Store Indonesia untuk aplikasi Twitter/X:
 * **Total Data Setelah Saring:** 44.217 ulasan (ulasan netral/faktual dibuang).
 * **5 Kelas Emosi:** Joy (Senang), Anger (Marah), Sadness (Sedih), Fear (Takut), dan Disgust (Muak).
 
+### Visualisasi Sebaran Data Mentah
+Distribusi rating mentah dan sebaran panjang karakter ulasan sebelum vs sesudah filter emosi:
+
+![Sebaran Rating Mentah](reports/figures/raw_rating_distribution.png)
+*Gambar 1: Sebaran Rating Ulasan Mentah di Play Store*
+
+![Perbandingan Panjang Karakter](reports/figures/char_length_comparison.png)
+*Gambar 2: Perbandingan Panjang Karakter Ulasan Sebelum vs. Sesudah Pemfilteran*
+
 ---
 
 ## ⚙️ Alur Pipeline
 
 Setiap tahapan dikerjakan berurutan dalam 5 Jupyter Notebook:
 
-1. **01_eda_and_filtering.ipynb (Pemuatan & Penyaringan):**
-   * Menyaring ulasan netral agar model fokus pada ulasan yang mengandung emosi.
-2. **02_preprocessing.ipynb (Labeling & Pra-pengolahan):**
-   * Melabeli data otomatis secara objektif dengan leksikon, membagi data (70:15:15), dan membersihkan kata slang.
-3. **03_feature_extraction.ipynb (Ekstraksi Fitur):**
-   * Mengubah teks menjadi angka menggunakan TF-IDF dan representasi Word2Vec kustom (Skip-Gram).
-4. **04_model_training.ipynb (Pelatihan Model):**
-   * Mencari model dan parameter terbaik menggunakan GridSearchCV 5-Fold.
-5. **05_error_analysis.ipynb (Analisis Eror & Uji Coba):**
-   * Mengukur akurasi pada data uji, menggambar matriks konfusi, menganalisis ulasan yang salah prediksi, serta menyediakan fitur tes kalimat baru.
+### 1. 01_eda_and_filtering.ipynb (Pemuatan & Penyaringan)
+* Menyaring ulasan netral/faktual agar model fokus pada ulasan yang mengandung emosi saja.
+
+### 2. 02_preprocessing.ipynb (Labeling & Pra-pengolahan)
+* Melabeli data otomatis secara objektif dengan leksikon, membagi data secara *stratified* (70:15:15), dan membersihkan kata slang.
+
+![Distribusi Kelas Emosi](reports/figures/class_distribution.png)
+*Gambar 3: Distribusi Kelas Emosi Hasil Pelabelan Otomatis*
+
+![Word Clouds Emosi](reports/figures/wordclouds.png)
+*Gambar 4: Subplots Word Cloud untuk Kelima Kelas Emosi*
+
+### 3. 03_feature_extraction.ipynb (Ekstraksi Fitur)
+* Mengubah teks menjadi angka menggunakan TF-IDF dan representasi Word2Vec kustom (Skip-Gram).
+
+![Visualisasi t-SNE](reports/figures/word2vec_tsne.png)
+*Gambar 5: Proyeksi t-SNE 2D Kata Kunci Emosi Word2Vec*
+
+### 4. 04_model_training.ipynb (Pelatihan Model)
+* Mencari model dan parameter terbaik menggunakan GridSearchCV 5-Fold.
+
+![Grafik Perbandingan Performa Model](reports/figures/model_comparison_chart.png)
+*Gambar 6: Grafik Batang Komparatif Nilai Macro F1-Score*
+
+### 5. 05_error_analysis.ipynb (Analisis Eror & Uji Coba)
+* Mengukur akurasi pada data uji, menggambar matriks konfusi, menganalisis ulasan yang salah prediksi, serta menyediakan fitur tes kalimat baru.
+
+![Normalized Confusion Matrix](reports/figures/normalized_confusion_matrix.png)
+*Gambar 7: 5x5 Normalized Confusion Matrix pada Set Uji*
 
 ---
 
@@ -79,6 +107,19 @@ Berikut adalah tabel performa model pada data uji (diurutkan berdasarkan nilai M
 | **Random Forest** | TF-IDF | 0.895 | 0.880 | 93.40% |
 | **LinearSVC** | Word2Vec (Weighted) | 0.865 | 0.852 | 91.20% |
 | **LinearSVC** | Word2Vec (Average) | 0.840 | 0.825 | 89.80% |
+
+### Detail Performa Model Terbaik per Kelas (LinearSVC + TF-IDF)
+Rincian metrik evaluasi per-kelas emosi pada data uji:
+
+| Kelas Emosi | Precision | Recall | F1-Score | Jumlah Sampel (Support) |
+| :--- | :---: | :---: | :---: | :---: |
+| **Joy** | 0.98 | 0.98 | 0.98 | 926 |
+| **Anger** | 0.93 | 0.89 | 0.91 | 149 |
+| **Sadness** | 0.90 | 0.94 | 0.92 | 247 |
+| **Fear** | 0.99 | 0.99 | 0.99 | 1163 |
+| **Disgust** | 0.92 | 0.90 | 0.91 | 253 |
+| **Rata-rata Makro (Macro Avg)** | **0.94** | **0.94** | **0.94** | **2738** |
+| **Akurasi Akhir (Accuracy)** | | | **0.97** | **2738** |
 
 * **Kesimpulan:** Model **LinearSVC dengan fitur TF-IDF** adalah yang terbaik dengan F1-Score **0.940** dan Akurasi **97.00%**. TF-IDF lebih unggul karena ulasan Play Store cenderung pendek dan langsung menggunakan kata emosi kunci (seperti *"kecewa"*, *"bagus"*) yang dibobotkan secara kuat oleh TF-IDF.
 

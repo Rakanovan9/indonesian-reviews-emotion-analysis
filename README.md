@@ -1,4 +1,4 @@
-# 📌 Analisis Emosi Ulasan Twitter/X di Play Store
+# Analisis Emosi Ulasan Twitter/X di Play Store
 > **Transisi dari Klasifikasi Sentimen ke Klasifikasi Emosi 5 Kelas**
 
 [![Python 3.12](https://img.shields.io/badge/Python-3.12-blue.svg)](https://www.python.org/)
@@ -11,7 +11,7 @@ Proyek ini merupakan **pengembangan (evolusi)** dari analisis sentimen sederhana
 
 ---
 
-## 🔄 Evolusi Proyek
+## Evolusi Proyek
 
 Perubahan dari analisis sentimen ke analisis emosi meningkatkan pemahaman detail keluhan pengguna.
 
@@ -31,7 +31,7 @@ Perubahan dari analisis sentimen ke analisis emosi meningkatkan pemahaman detail
 
 ---
 
-## 📊 Data Proyek
+## Data Proyek
 
 Ulasan Play Store Indonesia untuk aplikasi Twitter/X:
 * **Total Data Mentah:** 49.070 ulasan.
@@ -49,7 +49,7 @@ Distribusi rating mentah dan sebaran panjang karakter ulasan sebelum vs sesudah 
 
 ---
 
-## ⚙️ Alur Pipeline
+## Alur Pipeline
 
 Setiap tahapan dikerjakan berurutan dalam 5 Jupyter Notebook:
 
@@ -85,7 +85,7 @@ Setiap tahapan dikerjakan berurutan dalam 5 Jupyter Notebook:
 
 ---
 
-## 🤖 Model yang Digunakan
+## Model yang Digunakan
 
 * **Machine Learning Tradisional:** Logistic Regression, LinearSVC, Complement Naive Bayes (CNB), dan Random Forest.
 * **Kenapa Tidak Pakai Deep Learning (BERT/LSTM)?**
@@ -95,7 +95,7 @@ Setiap tahapan dikerjakan berurutan dalam 5 Jupyter Notebook:
 
 ---
 
-## 📈 Hasil Performa Model
+## Hasil Performa Model
 
 Berikut adalah tabel performa model pada data uji (diurutkan berdasarkan nilai Macro F1):
 
@@ -125,7 +125,7 @@ Rincian metrik evaluasi per-kelas emosi pada data uji:
 
 ---
 
-## 🗂️ Struktur Folder
+## Struktur Folder
 
 ```bash
 emotion-analysis/
@@ -140,7 +140,7 @@ emotion-analysis/
 
 ---
 
-## ▶️ Cara Menjalankan
+## Cara Menjalankan
 
 Jalankan perintah ini di terminal:
 
@@ -153,14 +153,14 @@ pip install -r requirements.txt
 
 ---
 
-## 💡 Temuan Penting
+## Temuan Penting
 
 * **Ambiguitas Emosi:** Emosi lebih sulit diprediksi daripada sentimen karena batas antar emosi tipis (misal keluhan *"uninstall"* bisa masuk kategori Sadness atau Disgust).
 * **Ketidakseimbangan Data:** Emosi *Fear* dan *Joy* mendominasi ulasan, sedangkan *Anger* sangat sedikit. Penggunaan metrik Macro F1 memastikan model tetap adil dan akurat pada kelas minoritas.
 
 ---
 
-## 🔮 Rencana Lanjutan
+## Rencana Lanjutan
 
 1. **Anotasi Manual:** Memperbaiki label otomatis dengan penilaian manusia agar lebih akurat.
 2. **Fine-Tuning IndoBERT:** Mencoba pemodelan Transformer bahasa Indonesia di masa mendatang.
@@ -168,5 +168,5 @@ pip install -r requirements.txt
 
 ---
 
-## 🧾 Catatan
+## Catatan
 * Proyek ini dibuat sebagai tugas mata kuliah **Text Mining / Natural Language Processing** Semester 6.

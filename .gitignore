@@ -26,3 +26,6 @@ models/*.model.*
 # Berkas konfigurasi sistem lokal
 .DS_Store
 Thumbs.db
+
+# Dokumen panduan lokal (tidak di-push ke GitHub)
+docs/

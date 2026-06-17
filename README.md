@@ -26,10 +26,11 @@ Perubahan dari analisis sentimen ke analisis emosi meningkatkan pemahaman detail
 
 ### Perubahan Struktur Sistem
 * **Yang Digunakan Kembali:** Pembersihan teks dasar, kamus slang bahasa Indonesia, dan data mentah.
-* **Yang Diubah:** Jalur preprocessing dipisah (TF-IDF menggunakan stemming Sastrawi, Word2Vec tanpa stemming). Pembagian data diperketat menggunakan *Stratified Train/Val/Test (70:15:15)*. Metrik evaluasi diganti ke *Macro F1-score* karena data tidak seimbang.
-* **Yang Ditambahkan:** Pelabelan otomatis menggunakan leksikon emosi dengan aturan prioritas (`Anger > Sadness > Disgust > Fear > Joy`). Pelatihan Word2Vec mandiri, visualisasi t-SNE, grafik performa model, matriks konfusi, dan fitur prediksi kalimat baru secara langsung.
+* **Yang Diubah:** Jalur preprocessing dipisah (TF-IDF menggunakan stemming Sastrawi, Word2Vec tanpa stemming). Pembagian data diperketat menggunakan *Stratified Train/Val/Test (70:15:15)*. Metrik evaluasi diganti ke *Macro F1-score* karena data tidak seimbang. **Pelatihan kustom Word2Vec Skip-Gram dibatasi secara induktif hanya pada data latih (train split) untuk mencegah kebocoran data (transductive leakage).**
+* **Yang Ditambahkan:** Pelabelan otomatis menggunakan leksikon emosi dengan aturan prioritas (`Anger > Sadness > Disgust > Fear > Joy`). Pelatihan Word2Vec mandiri, visualisasi t-SNE, grafik performa model, matriks konfusi, matriks transisi kesalahan kuantitatif, uji signifikansi statistik McNemar, dan fitur prediksi kalimat baru secara langsung.
 
 ---
+
 
 ## Data Proyek
 
@@ -78,10 +79,15 @@ Setiap tahapan dikerjakan berurutan dalam 5 Jupyter Notebook:
 *Gambar 6: Grafik Batang Komparatif Nilai Macro F1-Score*
 
 ### 5. 05_error_analysis.ipynb (Analisis Eror & Uji Coba)
-* Mengukur akurasi pada data uji, menggambar matriks konfusi, menganalisis ulasan yang salah prediksi, serta menyediakan fitur tes kalimat baru.
+* Mengukur akurasi pada data uji, menggambar matriks konfusi, menganalisis ulasan yang salah prediksi, melakukan pengujian signifikansi statistik McNemar, serta menyediakan fitur tes kalimat baru.
+* **Uji Signifikansi & Diagnostik Lanjut:** Menyertakan **Uji McNemar** (LinearSVC vs. Logistic Regression, p-value: 0.000000) dan visualisasi matriks transisi kesalahan kuantitatif (`error_transition_matrix.png`) untuk mendeteksi *class confusion* secara sistemik.
 
 ![Normalized Confusion Matrix](reports/figures/normalized_confusion_matrix.png)
 *Gambar 7: 5x5 Normalized Confusion Matrix pada Set Uji*
+
+![Error Transition Matrix](reports/figures/error_transition_matrix.png)
+*Gambar 8: Matriks Transisi Kesalahan Kuantitatif (Khusus Prediksi Salah)*
+
 
 ---
 
@@ -123,7 +129,18 @@ Rincian metrik evaluasi per-kelas emosi pada data uji:
 
 * **Kesimpulan:** Model **LinearSVC dengan fitur TF-IDF** adalah yang terbaik dengan F1-Score **0.940** dan Akurasi **97.00%**. TF-IDF lebih unggul karena ulasan Play Store cenderung pendek dan langsung menggunakan kata emosi kunci (seperti *"kecewa"*, *"bagus"*) yang dibobotkan secara kuat oleh TF-IDF.
 
+### Uji Signifikansi Statistik (McNemar's Test)
+Untuk membuktikan keunggulan model terbaik secara ilmiah, kita melakukan Uji McNemar (exact binomial test) membandingkan model terbaik (**LinearSVC + TF-IDF**) terhadap model pemenang kedua (**Logistic Regression + TF-IDF**).
+* **Tabel Kontingensi:**
+  * Kedua model benar: 2542
+  * Model 1 benar, Model 2 salah (b): 107
+  * Model 2 benar, Model 1 salah (c): 29
+  * Kedua model salah: 60
+* **Nilai p-value:** 0.000000 (p < 0.05)
+* **Kesimpulan:** Perbedaan performa antara kedua model adalah **signifikan secara statistik**. Ini membuktikan keunggulan LinearSVC bukan karena kebetulan variasi data split, melainkan memiliki margin keunggulan performa yang valid secara ilmiah.
+
 ---
+
 
 ## Struktur Folder
 

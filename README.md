@@ -42,10 +42,10 @@ Ulasan Play Store Indonesia untuk aplikasi Twitter/X:
 ### Visualisasi Sebaran Data Mentah
 Distribusi rating mentah dan sebaran panjang karakter ulasan sebelum vs sesudah filter emosi:
 
-![Sebaran Rating Mentah](reports/figures/raw_rating_distribution.png)
+<img src="reports/figures/raw_rating_distribution.png" width="350" alt="Sebaran Rating Mentah" />
 *Gambar 1: Sebaran Rating Ulasan Mentah di Play Store*
 
-![Perbandingan Panjang Karakter](reports/figures/char_length_comparison.png)
+<img src="reports/figures/char_length_comparison.png" width="400" alt="Perbandingan Panjang Karakter" />
 *Gambar 2: Perbandingan Panjang Karakter Ulasan Sebelum vs. Sesudah Pemfilteran*
 
 ---
@@ -60,32 +60,32 @@ Setiap tahapan dikerjakan berurutan dalam 5 Jupyter Notebook:
 ### 2. 02_preprocessing.ipynb (Labeling & Pra-pengolahan)
 * Melabeli data otomatis secara objektif dengan leksikon, membagi data secara *stratified* (70:15:15), dan membersihkan kata slang.
 
-![Distribusi Kelas Emosi](reports/figures/class_distribution.png)
+<img src="reports/figures/class_distribution.png" width="350" alt="Distribusi Kelas Emosi" />
 *Gambar 3: Distribusi Kelas Emosi Hasil Pelabelan Otomatis*
 
-![Word Clouds Emosi](reports/figures/wordclouds.png)
+<img src="reports/figures/wordclouds.png" width="550" alt="Word Clouds Emosi" />
 *Gambar 4: Subplots Word Cloud untuk Kelima Kelas Emosi*
 
 ### 3. 03_feature_extraction.ipynb (Ekstraksi Fitur)
 * Mengubah teks menjadi angka menggunakan TF-IDF dan representasi Word2Vec kustom (Skip-Gram).
 
-![Visualisasi t-SNE](reports/figures/word2vec_tsne.png)
+<img src="reports/figures/word2vec_tsne.png" width="380" alt="Visualisasi t-SNE" />
 *Gambar 5: Proyeksi t-SNE 2D Kata Kunci Emosi Word2Vec*
 
 ### 4. 04_model_training.ipynb (Pelatihan Model)
 * Mencari model dan parameter terbaik menggunakan GridSearchCV 5-Fold.
 
-![Grafik Perbandingan Performa Model](reports/figures/model_comparison_chart.png)
+<img src="reports/figures/model_comparison_chart.png" width="480" alt="Grafik Perbandingan Performa Model" />
 *Gambar 6: Grafik Batang Komparatif Nilai Macro F1-Score*
 
 ### 5. 05_error_analysis.ipynb (Analisis Eror & Uji Coba)
 * Mengukur akurasi pada data uji, menggambar matriks konfusi, menganalisis ulasan yang salah prediksi, melakukan pengujian signifikansi statistik McNemar, serta menyediakan fitur tes kalimat baru.
 * **Uji Signifikansi & Diagnostik Lanjut:** Menyertakan **Uji McNemar** (LinearSVC vs. Logistic Regression, p-value: 0.000000) dan visualisasi matriks transisi kesalahan kuantitatif (`error_transition_matrix.png`) untuk mendeteksi *class confusion* secara sistemik.
 
-![Normalized Confusion Matrix](reports/figures/normalized_confusion_matrix.png)
+<img src="reports/figures/normalized_confusion_matrix.png" width="380" alt="Normalized Confusion Matrix" />
 *Gambar 7: 5x5 Normalized Confusion Matrix pada Set Uji*
 
-![Error Transition Matrix](reports/figures/error_transition_matrix.png)
+<img src="reports/figures/error_transition_matrix.png" width="380" alt="Error Transition Matrix" />
 *Gambar 8: Matriks Transisi Kesalahan Kuantitatif (Khusus Prediksi Salah)*
 
 

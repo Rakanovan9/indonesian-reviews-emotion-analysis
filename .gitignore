@@ -1,0 +1,28 @@
+# Cache Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Virtual Environment (jika ada)
+.venv/
+env/
+venv/
+ENV/
+
+# Dataset Mentah & Hasil Preprocessing (tidak di-push ke GitHub karena ukuran besar/dinamis)
+data/raw/reviews_playstore_indonesia.csv
+data/processed/*
+!data/processed/.gitkeep
+
+# Model Hasil Serialisasi (tidak di-push ke GitHub karena berupa biner besar)
+models/*.joblib
+models/*.model
+models/*.model.*
+!models/.gitkeep
+
+# Berkas konfigurasi sistem lokal
+.DS_Store
+Thumbs.db

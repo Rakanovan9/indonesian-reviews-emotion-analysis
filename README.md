@@ -102,6 +102,19 @@ jupyter nbconvert --to notebook --execute --inplace notebooks/*.ipynb
 
 ## 7. Methodology
 
+### Kamus Leksikon Emosi (Lexicon)
+Untuk mendukung pelabelan otomatis ulasan, berikut adalah kamus kata kunci (leksikon) emosi yang digunakan:
+
+```python
+lexicon = {
+    'joy': {'bagus', 'keren', 'mantap', 'mantul', 'suka', 'puas', 'senang', 'seneng', 'hepi', 'terbantu', 'cinta', 'lucu', 'menghibur'},
+    'anger': {'kesal', 'kesel', 'kezel', 'marah', 'benci', 'sialan', 'bangsat', 'anjing', 'anjg', 'gila', 'buruk', 'ampas', 'jelek', 'lambat', 'lelet', 'lemot', 'crash', 'eror', 'bug', 'force close', 'gagal'},
+    'sadness': {'kecewa', 'keciwa', 'sedih', 'nyesel', 'menyesal', 'sayang', 'sayangnya', 'rugi', 'hilang', 'kangen', 'dulu', 'sebelumnya', 'berubah'},
+    'fear': {'takut', 'khawatir', 'kuatir', 'parno', 'cemas', 'ngeri', 'bahaya', 'bocor', 'diretas', 'hack', 'keamanan', 'aman', 'penipuan', 'scam', 'ditangguhkan', 'suspend'},
+    'disgust': {'muak', 'jijik', 'bosan', 'bosen', 'cape', 'capek', 'lelah', 'males', 'malas', 'risih', 'sampah', 'kotor', 'copot', 'uninstall', 'toxic', 'bot'}
+}
+```
+
 1. **Data Collection & Filtering:** Menyaring 49.070 ulasan mentah menjadi 44.217 ulasan bernilai emosi tinggi dengan membuang ulasan netral.
 2. **Preprocessing:** Membersihkan noise, menormalkan kata slang, dan menerapkan stemming khusus untuk representasi TF-IDF guna menekan dimensi fitur yang sparse.
 3. **Feature Extraction:** Merepresentasikan dokumen ulasan ke bentuk angka menggunakan TF-IDF unigram+bigram dan rata-rata vektor kata Word2Vec Skip-Gram.

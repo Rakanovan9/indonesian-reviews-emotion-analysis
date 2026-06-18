@@ -1,5 +1,5 @@
-# Analisis Emosi Ulasan Twitter/X di Google Play Store
-> **Sistem Klasifikasi Teks Multi-Kelas untuk Mendeteksi 5 Kategori Emosi pada Ulasan Pengguna Aplikasi Twitter/X**
+# Perbandingan Algoritma Machine Learning untuk Klasifikasi Emosi pada Ulasan Aplikasi X di Google Play Store
+> **Sistem Klasifikasi Teks Multi-Kelas untuk Mendeteksi 5 Kategori Emosi pada Ulasan Pengguna Aplikasi X**
 
 ---
 

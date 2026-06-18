@@ -1,123 +1,158 @@
-# Analisis Emosi Ulasan Twitter/X di Play Store
-> **Transisi dari Klasifikasi Sentimen ke Klasifikasi Emosi 5 Kelas**
+# Analisis Emosi Multi-Kelas pada Ulasan Aplikasi Twitter/X di Google Play Store
+> **Studi Komparatif Ekstraksi Fitur TF-IDF vs. Word2Vec Menggunakan Algoritma Machine Learning Tradisional**
 
 [![Python 3.12](https://img.shields.io/badge/Python-3.12-blue.svg)](https://www.python.org/)
-[![Machine Learning](https://img.shields.io/badge/ML-Tradisional-orange.svg)](https://scikit-learn.org/)
-[![NLP](https://img.shields.io/badge/NLP-Bahasa%20Indonesia-green.svg)](https://github.com/)
-
-Proyek ini adalah sistem klasifikasi teks (NLP) untuk mengelompokkan ulasan pengguna aplikasi Twitter/X di Google Play Store ke dalam 5 emosi: **Joy (Senang), Anger (Marah), Sadness (Sedih), Fear (Takut), dan Disgust (Muak)**.
-
-Proyek ini merupakan **pengembangan (evolusi)** dari analisis sentimen sederhana (Positif/Negatif/Netral) ke deteksi emosi yang lebih detail dan spesifik.
+[![Scikit-Learn](https://img.shields.io/badge/Scikit--Learn-1.4-orange.svg)](https://scikit-learn.org/)
+[![Gensim](https://img.shields.io/badge/Gensim-4.3-green.svg)](https://radimrehurek.com/gensim/)
 
 ---
 
-## Evolusi Proyek
+## 1. Project Overview (Deskripsi Proyek)
 
-Perubahan dari analisis sentimen ke analisis emosi meningkatkan pemahaman detail keluhan pengguna.
+### Latar Belakang & Masalah
+Ulasan pengguna pada Google Play Store merupakan sumber data umpan balik yang sangat berharga bagi pengembang aplikasi. Namun, analisis sentimen tradisional yang menyederhanakan opini menjadi polaritas **Positif, Negatif, atau Netral** sering kali gagal menangkap kompleksitas psikologis di balik teks ulasan. Sebagai contoh, keluhan teknis yang memicu emosi **Anger (Marah)** (misal: akun ditangguhkan secara sepihak) membutuhkan penanganan sistemik yang berbeda dibandingkan luapan kekecewaan bermakna **Disgust (Muak)** akibat spamming iklan.
 
-### Perbandingan Sentimen vs. Emosi
+### Definisi Analisis Emosi
+Analisis emosi (*Emotion Analysis*) adalah cabang pemrosesan bahasa alami (NLP) yang berfokus pada klasifikasi teks ke dalam kategori emosi yang lebih spesifik. Proyek ini mengimplementasikan klasifikasi emosi multi-kelas (5 kelas) berdasarkan klasifikasi psikologis dasar, yaitu:
+* **Joy (Senang)**
+* **Anger (Marah)**
+* **Sadness (Sedih)**
+* **Fear (Takut)**
+* **Disgust (Muak)**
 
-| Aspek | Analisis Sentimen (Lama) | Analisis Emosi (Baru) |
-| :--- | :--- | :--- |
-| **Kelas Label** | 3 Kelas (Positif, Negatif, Netral) | 5 Kelas (Joy, Anger, Sadness, Fear, Disgust) |
-| **Tingkat Kesulitan** | Rendah (Hanya polaritas baik/buruk) | Tinggi (Banyak kata emosi yang mirip/tumpang tindih) |
-| **Hasil Output** | Arah sentimen umum | Nuansa emosi yang spesifik |
-| **Model** | Klasifikasi sederhana | Optimasi parameter dengan GridSearch dan Word2Vec |
-
-### Perubahan Struktur Sistem
-* **Yang Digunakan Kembali:** Pembersihan teks dasar, kamus slang bahasa Indonesia, dan data mentah.
-* **Yang Diubah:** Jalur preprocessing dipisah (TF-IDF menggunakan stemming Sastrawi, Word2Vec tanpa stemming). Pembagian data diperketat menggunakan *Stratified Train/Val/Test (70:15:15)*. Metrik evaluasi diganti ke *Macro F1-score* karena data tidak seimbang. **Pelatihan kustom Word2Vec Skip-Gram dibatasi secara induktif hanya pada data latih (train split) untuk mencegah kebocoran data (transductive leakage).**
-* **Yang Ditambahkan:** Pelabelan otomatis menggunakan leksikon emosi dengan aturan prioritas (`Anger > Sadness > Disgust > Fear > Joy`). Pelatihan Word2Vec mandiri, visualisasi t-SNE, grafik performa model, matriks konfusi, matriks transisi kesalahan kuantitatif, uji signifikansi statistik McNemar, dan fitur prediksi kalimat baru secara langsung.
+### Sasaran & Objektif
+Objektif utama penelitian ini adalah membangun pipeline pemrosesan teks modular dan membandingkan secara komparatif efektivitas representasi fitur berbasis frekuensi leksikal (**TF-IDF unigram & bigram**) terhadap representasi semantik berbasis vektor kontinu (**Word2Vec Skip-Gram**) untuk mengklasifikasi emosi ulasan aplikasi Twitter/X berbahasa Indonesia.
 
 ---
 
+## 2. Why This Project (Urgensi & Pertanyaan Penelitian)
 
-## Data Proyek
+### Pertanyaan Penelitian (Research Questions)
+1. *Apakah representasi semantik kontinu (Word2Vec) mampu melampaui keandalan representasi frekuensi kata tradisional (TF-IDF) dalam memodelkan ulasan pendek yang kaya akan bahasa slang informal?*
+2. *Bagaimana pengaruh pembobotan TF-IDF terhadap embedding dokumen Word2Vec (Weighted Average) dibandingkan dengan perataan sederhana (Simple Average)?*
+3. *Algoritma machine learning tradisional manakah yang paling kokoh dalam menangani ruang fitur dimensi tinggi yang dihasilkan dari teks ulasan informal?*
 
-Ulasan Play Store Indonesia untuk aplikasi Twitter/X:
-* **Total Data Mentah:** 49.070 ulasan.
-* **Total Data Setelah Saring:** 44.217 ulasan (ulasan netral/faktual dibuang).
-* **5 Kelas Emosi:** Joy (Senang), Anger (Marah), Sadness (Sedih), Fear (Takut), dan Disgust (Muak).
-
-### Visualisasi Sebaran Data Mentah
-Distribusi rating mentah dan sebaran panjang karakter ulasan sebelum vs sesudah filter emosi:
-
-<img src="reports/figures/raw_rating_distribution.png" width="350" alt="Sebaran Rating Mentah" />
-*Gambar 1: Sebaran Rating Ulasan Mentah di Play Store*
-
-<img src="reports/figures/char_length_comparison.png" width="400" alt="Perbandingan Panjang Karakter" />
-*Gambar 2: Perbandingan Panjang Karakter Ulasan Sebelum vs. Sesudah Pemfilteran*
-
-### Metodologi Pelabelan Leksikon & Keterbatasan
-
-Karena tidak adanya dataset publik berlabel emosi untuk ulasan Play Store Indonesia, proyek ini menggunakan pendekatan pelabelan otomatis berbasis **leksikon (kamus emosi)**. Leksikon disusun secara hibrida menggabungkan kata emosi standar bahasa Indonesia, kosakata slang/informal (misalnya *"kesel"*, *"baper"*, *"happy"*), serta kata keluhan spesifik aplikasi store (misalnya *"bug"*, *"error"*, *"lemot"*).
-
-#### 1. Aturan Resolusi Konflik Emosi
-Apabila dalam satu kalimat ulasan terdeteksi lebih dari satu jenis kata kunci emosi yang berbeda, sistem akan menerapkan aturan resolusi konflik berbasis hirarki prioritas berikut:
-* **Hirarki Prioritas:** `Anger > Sadness > Disgust > Fear > Joy`
-* **Rasionalisasi:** Prioritas emosi negatif (khususnya *Anger* dan *Sadness*) diposisikan paling atas karena dalam konteks ulasan aplikasi, keluhan kritis pengguna memiliki signifikansi tertinggi bagi pengembang dibandingkan ekspresi senang (*Joy*).
-
-#### 2. Keterbatasan Akademis (Data Circularity & Bias)
-Penting untuk dicatat bahwa pelabelan otomatis ini memiliki batasan metodologis yang wajib didiskusikan secara kritis:
-* **Sirkularitas Ground Truth:** Label data (*ground truth*) dibentuk menggunakan aturan pencocokan kata berbasis kamus. Akibatnya, model pengklasifikasi (seperti LinearSVC) yang dilatih sebenarnya bukan mempelajari "nuansa kognitif emosi manusia yang sesungguhnya", melainkan sedang meniru aturan deterministik dari kamus leksikon tersebut secara sirkular.
-* **Akurasi Semu (97.00%):** Performa akurasi uji yang sangat tinggi (97.00%) mencerminkan efektivitas model dalam mereplikasi aturan pencocokan leksikon, bukan representasi mutlak dari kompleksitas bahasa ulasan asli. Pada penelitian tingkat lanjut, anotasi manual oleh manusia (*human annotation*) dengan pengukuran kesepakatan antar-annotator (*Inter-Annotator Agreement* seperti Cohen's Kappa) sangat disarankan untuk menghilangkan bias leksikon ini.
+### Justifikasi Metodologis
+* **TF-IDF vs. Word2Vec:** TF-IDF bertindak sebagai representasi leksikal yang sensitif terhadap kata kunci emosi eksplisit (*sparse representation*). Word2Vec bertindak sebagai representasi terdistribusi (*dense representation*) yang mampu menangkap kesamaan semantik kontekstual (misal: menyadari bahwa *"kesel"* dan *"marah"* berada di ruang vektor yang berdekatan meskipun karakternya berbeda).
+* **Pemilihan Machine Learning Tradisional:** Dengan volume data latih sekitar 30.000 ulasan setelah penyaringan, algoritma tradisional (seperti SVM dan Logistic Regression) dinilai lebih efisien secara komputasi, terhindar dari risiko *overfitting* ekstrem pada model Deep Learning (seperti LSTM atau Transformer tanpa pre-training), dan menawarkan interpretasi bobot fitur yang jauh lebih transparan.
 
 ---
 
-## Alur Pipeline
+## 3. Methodology (Penjelasan Pipeline)
 
-Setiap tahapan dikerjakan berurutan dalam 5 Jupyter Notebook:
+```mermaid
+graph TD
+    A[Raw Data: 49.070 Reviews] --> B[Notebook 01: EDA & Filter Faktual/Netral]
+    B --> C[Filtered Data: 44.217 Reviews]
+    C --> D[Notebook 02: Lexicon Automatic Labeling]
+    D --> E[Stratified Split 70:15:15]
+    E --> F[Jalur TF-IDF: Slang Normalization + Stemming]
+    E --> G[Jalur Word2Vec: Slang Normalization, No Stemming]
+    F --> H[Notebook 03: Feature Engineering]
+    G --> H
+    H --> I[TF-IDF Unigram & Bigram Vectorizer]
+    H --> J[Word2Vec Skip-Gram Training - Train Split Only]
+    I --> K[Notebook 04: GridSearchCV Model Training]
+    J --> K
+    K --> L[Evaluate on Val Set & Select Best Model: LinearSVC + TF-IDF]
+    L --> M[Notebook 05: Error Analysis & Significance Test]
+    M --> N[Final Evaluation on Test Set & McNemar Test]
+```
 
-### 1. 01_eda_and_filtering.ipynb (Pemuatan & Penyaringan)
-* Menyaring ulasan netral/faktual agar model fokus pada ulasan yang mengandung emosi saja.
+### 3.1 Pemuatan & Penyaringan Data (Notebook 01)
+* **Penyaringan Faktual/Netral:** Ulasan yang tidak mengandung ekspresi emosi (misalnya ulasan berita faktual atau teks kosong) disaring keluar. Sistem membatasi ulasan berdasarkan rating ekstrem (rating 1 & 2 diasosiasikan dengan emosi negatif, rating 5 dengan emosi positif) untuk memastikan data memiliki sinyal emosi yang kuat.
 
-### 2. 02_preprocessing.ipynb (Labeling & Pra-pengolahan)
-* Melabeli data otomatis secara objektif dengan leksikon, membagi data secara *stratified* (70:15:15), dan membersihkan kata slang.
+### 3.2 Pelabelan Leksikon & Pra-pengolahan (Notebook 02)
+* **Pelabelan Otomatis Leksikon:** Karena keterbatasan anotasi manual, pelabelan dilakukan otomatis menggunakan kamus emosi hibrida bahasa Indonesia dengan menerapkan aturan hirarki prioritas konflik emosi negatif: `Anger > Sadness > Disgust > Fear > Joy`.
+* **Pra-pengolahan Teks Bercabang:**
+  * **Jalur TF-IDF:** Menggunakan normalisasi slang, penghapusan stopword terbatas, dan **Stemming** (menggunakan PySastrawi). Stemming sangat krusial untuk TF-IDF guna mereduksi variasi morfologi kata bahasa Indonesia ke bentuk dasarnya (misal: *"kecewa"*, *"mengecewakan"*, *"dikecewakan"* disatukan menjadi *"kecewa"*), sehingga mengurangi *sparsity* fitur.
+  * **Jalur Word2Vec:** Hanya menggunakan normalisasi slang tanpa stemming. Word2Vec bergantung pada konteks sintaksis di sekitar kata; stemming yang berlebihan akan merusak informasi imbuhan dan struktur tata bahasa asli yang penting untuk membentuk vektor semantik kata.
 
-<img src="reports/figures/class_distribution.png" width="350" alt="Distribusi Kelas Emosi" />
-*Gambar 3: Distribusi Kelas Emosi Hasil Pelabelan Otomatis*
+### 3.3 Ekstraksi Fitur (Notebook 03)
+* **TF-IDF (Unigram + Bigram):** Unigram mendeteksi kata emosi tunggal, sedangkan Bigram mendeteksi negasi (misal: *"tidak kecewa"*) atau penguat makna (misal: *"jelek banget"*).
+* **Word2Vec Skip-Gram (Kustom):** Melatih arsitektur Skip-Gram secara mandiri dengan parameter `vector_size=100`, `window=5`, dan `min_count=2`. Skip-Gram dipilih karena kemampuannya memodelkan kata-kata yang jarang muncul (*rare words*) secara lebih akurat pada korpus ulasan Play Store. Vektor dokumen dihitung dengan dua variasi:
+  * **Simple Average:** Rata-rata aritmatika dari seluruh vektor kata dalam ulasan.
+  * **TF-IDF Weighted Average:** Rata-rata tertimbang di mana vektor kata dikalikan dengan bobot TF-IDF kata tersebut sebelum dirata-ratakan, sehingga kata-kata penting yang jarang muncul mendapatkan pengaruh lebih besar pada representasi dokumen.
 
-<img src="reports/figures/wordclouds.png" width="550" alt="Word Clouds Emosi" />
-*Gambar 4: Subplots Word Cloud untuk Kelima Kelas Emosi*
+### 3.4 Pelatihan Model & Optimasi (Notebook 04)
+Algoritma yang dievaluasi meliputi **Logistic Regression**, **LinearSVC**, **Complement Naive Bayes (CNB)**, dan **Random Forest**. Optimasi parameter dijalankan menggunakan **GridSearchCV 5-Fold Stratified Cross Validation** dengan target performa **Macro F1-Score** untuk mencegah bias evaluasi akibat ketidakseimbangan kelas (*class imbalance*).
 
-### 3. 03_feature_extraction.ipynb (Ekstraksi Fitur)
-* Mengubah teks menjadi angka menggunakan TF-IDF dan representasi Word2Vec kustom (Skip-Gram).
-
-<img src="reports/figures/word2vec_tsne.png" width="380" alt="Visualisasi t-SNE" />
-*Gambar 5: Proyeksi t-SNE 2D Kata Kunci Emosi Word2Vec*
-
-### 4. 04_model_training.ipynb (Pelatihan Model)
-* Mencari model dan parameter terbaik menggunakan GridSearchCV 5-Fold.
-
-<img src="reports/figures/model_comparison_chart.png" width="480" alt="Grafik Perbandingan Performa Model" />
-*Gambar 6: Grafik Batang Komparatif Nilai Macro F1-Score*
-
-### 5. 05_error_analysis.ipynb (Analisis Eror & Uji Coba)
-* Mengukur akurasi pada data uji, menggambar matriks konfusi, menganalisis ulasan yang salah prediksi, melakukan pengujian signifikansi statistik McNemar, serta menyediakan fitur tes kalimat baru.
-* **Uji Signifikansi & Diagnostik Lanjut:** Menyertakan **Uji McNemar** (LinearSVC vs. Logistic Regression, p-value: 0.000000) dan visualisasi matriks transisi kesalahan kuantitatif (`error_transition_matrix.png`) untuk mendeteksi *class confusion* secara sistemik.
-
-<img src="reports/figures/normalized_confusion_matrix.png" width="380" alt="Normalized Confusion Matrix" />
-*Gambar 7: 5x5 Normalized Confusion Matrix pada Set Uji*
-
-<img src="reports/figures/error_transition_matrix.png" width="380" alt="Error Transition Matrix" />
-*Gambar 8: Matriks Transisi Kesalahan Kuantitatif (Khusus Prediksi Salah)*
-
-
----
-
-## Model yang Digunakan
-
-* **Machine Learning Tradisional:** Logistic Regression, LinearSVC, Complement Naive Bayes (CNB), dan Random Forest.
-* **Kenapa Tidak Pakai Deep Learning (BERT/LSTM)?**
-  1. Dataset (44 ribu baris) dinilai terlalu kecil untuk melatih Deep Learning tanpa risiko *overfitting*.
-  2. Label data berasal dari aturan kamus (leksikon), sehingga Deep Learning hanya akan menghafal kamus tersebut tanpa belajar makna kalimat sebenarnya.
-  3. Model tradisional lebih mudah dipahami dan dijelaskan bobot katanya (*interpretable*).
+### 3.5 Analisis Eror & Verifikasi Ilmiah (Notebook 05)
+Model terbaik dievaluasi secara akhir pada data uji (*Test set*). Tahapan ini mencakup pembuatan matriks konfusi ternormalisasi, matriks transisi kesalahan kuantitatif, analisis linguistik kesalahan (sarkasme/ambiguitas), serta pengujian signifikansi statistik menggunakan **Uji McNemar**.
 
 ---
 
-## Hasil Performa Model
+## 4. Project Structure (Struktur Direktori)
 
-Berikut adalah tabel performa model pada data uji (diurutkan berdasarkan nilai Macro F1):
+```bash
+emotion-analysis/
+│
+├── data/
+│   ├── raw/                  # Dataset ulasan mentah hasil scraping (.csv)
+│   └── processed/            # File data hasil filter, pelabelan, dan pembagian split (.csv)
+│
+├── src/                      # Modul python modular pembantu
+│   ├── data_utils.py         # Logika penyaringan ulasan netral/faktual
+│   ├── preprocessing.py      # Dual preprocessing pipeline & aturan leksikon
+│   ├── modeling.py           # Inisialisasi model ML, grid search, dan fungsi evaluasi
+│   └── evaluation.py         # Visualisasi confusion matrix & matriks eror
+│
+├── notebooks/                # Jupyter Notebook alur kerja berurutan
+│   ├── 01_eda_and_filtering.ipynb
+│   ├── 02_preprocessing.ipynb
+│   ├── 03_feature_extraction.ipynb
+│   ├── 04_model_training.ipynb
+│   └── 05_error_analysis.ipynb
+│
+├── models/                   # Berkas model dan representasi vektor yang terlatih (.joblib & .model)
+└── reports/figures/          # File ekspor visualisasi grafik untuk paper/laporan (.png)
+```
+
+---
+
+## 5. How to Run (Panduan Reproduksi)
+
+### 5.1 Prasyarat System
+* Python versi **3.12** atau di atasnya.
+* Virtual environment (sangat direkomendasikan).
+
+### 5.2 Instalasi Dependensi
+Jalankan terminal di direktori proyek dan pasang seluruh pustaka yang diperlukan:
+```bash
+pip install -r requirements.txt
+```
+
+### 5.3 Langkah Eksekusi Pipeline
+Jalankan Jupyter Notebook di folder `notebooks/` secara berurutan:
+1. **`01_eda_and_filtering.ipynb`**: Memproses data mentah di `data/raw/` dan menghasilkan file `filtered_reviews.csv` di `data/processed/`.
+2. **`02_preprocessing.ipynb`**: Melakukan pelabelan leksikon, pembagian data split, pembersihan slang, dan menghasilkan dataset latih/uji.
+3. **`03_feature_extraction.ipynb`**: Melatih Word2Vec kustom pada data latih serta mengekstrak seluruh matriks fitur.
+4. **`04_model_training.ipynb`**: Melakukan GridSearchCV untuk mencari parameter terbaik dan mengekspor model terpilih ke folder `models/`.
+5. **`05_error_analysis.ipynb`**: Menghasilkan evaluasi akhir set uji, matriks konfusi, hasil uji signifikansi statistik McNemar, serta demo prediksi teks kustom.
+
+---
+
+## 6. Experiment Design (Desain Eksperimen)
+
+### Strategi Pembagian Data
+Untuk menjamin hasil evaluasi yang valid secara ilmiah dan bebas dari bias seleksi, dataset dibagi menjadi tiga bagian menggunakan **Stratified Split**:
+* **Data Latih (Train Set - 70%)**: Untuk fitting model dan pencarian parameter.
+* **Data Validasi (Val Set - 15%)**: Untuk mengevaluasi GridSearchCV dan memilih konfigurasi model-fitur terbaik.
+* **Data Uji (Test Set - 15%)**: Ditahan sepenuhnya dari proses pelatihan dan hanya digunakan untuk evaluasi akhir.
+
+### Uji Coba Adil (Fair Comparison Setup)
+* Seluruh eksperimen menggunakan generator bilangan acak yang dikunci (`random_state=42`) pada pemisahan data, inisialisasi model, dan pelatihan Word2Vec.
+* Metrik optimasi utama adalah **Macro F1-Score**, yang menghitung F1-score secara independen untuk setiap kelas kemudian merata-ratakannya. Metrik ini memberikan bobot yang setara untuk kelas mayoritas (*Fear*, *Joy*) maupun kelas minoritas (*Anger*).
+
+### Pencegahan Kebocoran Data (Leakage Prevention)
+* Word2Vec Skip-Gram dilatih **hanya** pada bagian *Train set*. Vektor representasi untuk set validasi dan set uji diperoleh dengan menerapkan inference (*lookup*) pada model Word2Vec yang sudah terkunci. Hal ini mencegah masuknya informasi semantik dari data uji ke dalam proses pelatihan model.
+
+---
+
+## 7. Results Summary (Hasil Performa Model)
+
+### Tabel Perbandingan Performa Eksperimen (10 Konfigurasi)
+Berikut adalah tabel komparasi performa model dari hasil eksperimen riil (diurutkan berdasarkan skor Macro F1 pada data uji):
 
 | Model | Fitur | Val Macro F1 | Test Macro F1 | Akurasi Uji |
 | :--- | :--- | :---: | :---: | :---: |
@@ -147,17 +182,15 @@ Rincian metrik evaluasi per-kelas emosi pada data uji:
 | **Rata-rata Makro (Macro Avg)** | **0.94** | **0.94** | **0.94** | **2738** |
 | **Akurasi Akhir (Accuracy)** | | | **0.97** | **2738** |
 
-* **Kesimpulan:** Model **LinearSVC dengan fitur TF-IDF** adalah yang terbaik dengan F1-Score **0.941** dan Akurasi **96.75%**. TF-IDF lebih unggul karena ulasan Play Store cenderung pendek dan langsung menggunakan kata emosi kunci (seperti *"kecewa"*, *"bagus"*) yang dibobotkan secara kuat oleh TF-IDF.
-
 ### Uji Signifikansi Statistik (McNemar's Test)
-Untuk membuktikan keunggulan model terbaik secara ilmiah, kita melakukan Uji McNemar (exact binomial test) membandingkan model terbaik (**LinearSVC + TF-IDF**) terhadap model pemenang kedua (**Logistic Regression + TF-IDF**).
+Uji McNemar (exact binomial test) membandingkan model terbaik (**LinearSVC + TF-IDF**) terhadap model peringkat kedua (**Logistic Regression + TF-IDF**):
 * **Tabel Kontingensi:**
-  * Kedua model benar: 2542
-  * Model 1 benar, Model 2 salah (b): 107
-  * Model 2 benar, Model 1 salah (c): 29
-  * Kedua model salah: 60
+  * Kedua model memprediksi benar: 2542 sampel
+  * Model 1 benar, Model 2 salah (b): 107 sampel
+  * Model 2 benar, Model 1 salah (c): 29 sampel
+  * Kedua model memprediksi salah: 60 sampel
 * **Nilai p-value:** 0.000000 (p < 0.05)
-* **Kesimpulan:** Perbedaan performa antara kedua model adalah **signifikan secara statistik**. Ini membuktikan keunggulan LinearSVC bukan karena kebetulan variasi data split, melainkan memiliki margin keunggulan performa yang valid secara ilmiah.
+* **Kesimpulan:** Perbedaan performa antara LinearSVC dan Logistic Regression adalah **signifikan secara statistik**. Keunggulan LinearSVC bukan disebabkan oleh variasi data split, melainkan merupakan margin performa yang valid.
 
 ### Simulasi Hasil Prediksi Teks Kustom
 Berikut adalah simulasi uji coba kemampuan inferensi model terbaik (**LinearSVC + TF-IDF**) secara langsung terhadap beberapa kalimat ulasan kustom baru:
@@ -175,49 +208,35 @@ Berikut adalah simulasi uji coba kemampuan inferensi model terbaik (**LinearSVC 
 
 ---
 
+## 8. Analysis & Insights (Analisis & Pembahasan)
 
-## Struktur Folder
+### Mengapa TF-IDF Mengungguli Word2Vec?
+1. **Karakteristik Teks Ulasan Pendek:** Ulasan Google Play Store cenderung singkat, padat, dan langsung menggunakan kata kunci emosional yang kuat (*"kecewa"*, *"bagus"*, *"jelek"*). Bobot IDF (Inverse Document Frequency) menaikkan skor kata kunci langka yang diskriminatif ini.
+2. **Efek Pengenceran Informasi (Information Dilution):** Pada representasi rata-rata vektor (Average Word2Vec), vektor kata kunci emosi yang sangat kuat dicampur dan dirata-ratakan dengan vektor kata-kata netral lainnya dalam ulasan. Akibatnya, sinyal emosi menjadi terdistorsi. Upaya menggunakan pembobotan TF-IDF (Weighted Word2Vec) sedikit memperbaiki representasi, namun belum mampu melampaui keandalan spasial dari ruang fitur TF-IDF unigram+bigram.
 
-```bash
-emotion-analysis/
-│
-├── data/                    # Data mentah (raw) dan data siap pakai (processed)
-├── notebooks/               # 5 berkas notebook analisis bertahap
-├── src/                     # Kode python modular (pembantu)
-├── models/                  # Berkas model terlatih (.joblib dan .model)
-├── reports/figures/         # Hasil gambar visualisasi (t-SNE, confusion matrix, dll)
-└── emotion_analysis_plan/   # Dokumen rancangan tugas
-```
+### Analisis Kebingungan Emosi (Confusion Analysis)
+Visualisasi dari matriks konfusi dan matriks transisi kesalahan mengindikasikan adanya kebingungan klasifikasi model yang kuat pada kelas **Anger** dan **Disgust**.
+* **Penyebab Linguistik:** Pengguna sering kali menuliskan kemarahan (*Anger*) dan kejengkelan (*Disgust*) menggunakan kata-kata kasar yang tumpang tindih secara semantik (misalnya frasa *"aplikasi sampah"* atau *"kecewa banget sama update baru"*). Ketiadaan konteks intonasi suara membuat pemisahan kedua emosi negatif ini menjadi tantangan berat bagi model klasifikasi linear.
 
 ---
 
-## Cara Menjalankan
+## 9. Limitations (Keterbatasan Penelitian)
 
-Jalankan perintah ini di terminal:
-
-```bash
-# 1. Install library yang dibutuhkan
-pip install -r requirements.txt
-
-# 2. Jalankan notebook secara berurutan (01 s.d 05) di Jupyter Anda
-```
+1. **Sirkularitas Label Leksikon (Annotation Bias):** Mengingat *ground truth* dilabeli secara otomatis menggunakan pendekatan aturan kamus leksikon, model klasifikasi machine learning yang dilatih sebenarnya hanya mereplikasi aturan deterministik dari kamus tersebut. Performa akurasi 97.00% pada LinearSVC mencerminkan kemampuan model meniru leksikon, bukan representasi emosi kognitif manusia yang alami.
+2. **Kebergantungan pada Kamus Slang:** Kualitas pembersihan teks sangat bergantung pada kelengkapan kamus slang normalisasi. Bahasa gaul internet Indonesia berkembang sangat cepat, sehingga kamus slang statis ini berisiko usang dalam waktu singkat.
 
 ---
 
-## Temuan Penting
+## 10. Future Work (Rencana Lanjutan)
 
-* **Ambiguitas Emosi:** Emosi lebih sulit diprediksi daripada sentimen karena batas antar emosi tipis (misal keluhan *"uninstall"* bisa masuk kategori Sadness atau Disgust).
-* **Ketidakseimbangan Data:** Emosi *Fear* dan *Joy* mendominasi ulasan, sedangkan *Anger* sangat sedikit. Penggunaan metrik Macro F1 memastikan model tetap adil dan akurat pada kelas minoritas.
-
----
-
-## Rencana Lanjutan
-
-1. **Anotasi Manual:** Memperbaiki label otomatis dengan penilaian manusia agar lebih akurat.
-2. **Fine-Tuning IndoBERT:** Mencoba pemodelan Transformer bahasa Indonesia di masa mendatang.
-3. **Interpretabilitas (SHAP):** Menambahkan visualisasi penjelasan keputusan model.
+1. **Anotasi Data oleh Manusia (Human-in-the-Loop):** Mengganti pelabelan otomatis leksikon dengan anotasi manual oleh beberapa panel ahli bahasa (human annotators) dan menghitung nilai *Inter-Annotator Agreement* (seperti Cohen's Kappa atau Fleiss' Kappa) untuk membangun dataset acuan (*gold standard*) yang bebas bias.
+2. **Penerapan Transformer (IndoBERT):** Melakukan *fine-tuning* pada model representasi bahasa berbasis Transformer yang telah dilatih sebelumnya untuk bahasa Indonesia (seperti IndoBERT atau IndoGPT) guna menangkap hubungan semantik kalimat yang lebih kompleks secara kontekstual.
+3. **Analisis Sarkasme:** Menambahkan modul khusus pendeteksi sarkasme, mengingat sarkasme sering kali membalikkan polaritas emosi teks ulasan secara implisit.
 
 ---
 
-## Catatan
-* Proyek ini dibuat sebagai tugas mata kuliah **Text Mining / Natural Language Processing** Semester 6.
+## 11. References (Referensi Ilmiah)
+
+1. Mikolov, T., Chen, K., Corrado, G., & Dean, J. (2013). *Efficient Estimation of Word Representations in Vector Space*. arXiv preprint arXiv:1301.3781.
+2. McNemar, Q. (1947). *Note on the sampling error of the difference between correlated proportions or percentages*. Psychometrika, 12(2), 153-157.
+3. Manning, C. D., Raghavan, P., & Schütze, H. (2008). *Introduction to Information Retrieval*. Cambridge University Press.

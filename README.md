@@ -48,6 +48,20 @@ Distribusi rating mentah dan sebaran panjang karakter ulasan sebelum vs sesudah 
 <img src="reports/figures/char_length_comparison.png" width="400" alt="Perbandingan Panjang Karakter" />
 *Gambar 2: Perbandingan Panjang Karakter Ulasan Sebelum vs. Sesudah Pemfilteran*
 
+### Metodologi Pelabelan Leksikon & Keterbatasan
+
+Karena tidak adanya dataset publik berlabel emosi untuk ulasan Play Store Indonesia, proyek ini menggunakan pendekatan pelabelan otomatis berbasis **leksikon (kamus emosi)**. Leksikon disusun secara hibrida menggabungkan kata emosi standar bahasa Indonesia, kosakata slang/informal (misalnya *"kesel"*, *"baper"*, *"happy"*), serta kata keluhan spesifik aplikasi store (misalnya *"bug"*, *"error"*, *"lemot"*).
+
+#### 1. Aturan Resolusi Konflik Emosi
+Apabila dalam satu kalimat ulasan terdeteksi lebih dari satu jenis kata kunci emosi yang berbeda, sistem akan menerapkan aturan resolusi konflik berbasis hirarki prioritas berikut:
+* **Hirarki Prioritas:** `Anger > Sadness > Disgust > Fear > Joy`
+* **Rasionalisasi:** Prioritas emosi negatif (khususnya *Anger* dan *Sadness*) diposisikan paling atas karena dalam konteks ulasan aplikasi, keluhan kritis pengguna memiliki signifikansi tertinggi bagi pengembang dibandingkan ekspresi senang (*Joy*).
+
+#### 2. Keterbatasan Akademis (Data Circularity & Bias)
+Penting untuk dicatat bahwa pelabelan otomatis ini memiliki batasan metodologis yang wajib didiskusikan secara kritis:
+* **Sirkularitas Ground Truth:** Label data (*ground truth*) dibentuk menggunakan aturan pencocokan kata berbasis kamus. Akibatnya, model pengklasifikasi (seperti LinearSVC) yang dilatih sebenarnya bukan mempelajari "nuansa kognitif emosi manusia yang sesungguhnya", melainkan sedang meniru aturan deterministik dari kamus leksikon tersebut secara sirkular.
+* **Akurasi Semu (97.00%):** Performa akurasi uji yang sangat tinggi (97.00%) mencerminkan efektivitas model dalam mereplikasi aturan pencocokan leksikon, bukan representasi mutlak dari kompleksitas bahasa ulasan asli. Pada penelitian tingkat lanjut, anotasi manual oleh manusia (*human annotation*) dengan pengukuran kesepakatan antar-annotator (*Inter-Annotator Agreement* seperti Cohen's Kappa) sangat disarankan untuk menghilangkan bias leksikon ini.
+
 ---
 
 ## Alur Pipeline

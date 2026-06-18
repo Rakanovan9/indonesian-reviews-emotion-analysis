@@ -121,12 +121,18 @@ Berikut adalah tabel performa model pada data uji (diurutkan berdasarkan nilai M
 
 | Model | Fitur | Val Macro F1 | Test Macro F1 | Akurasi Uji |
 | :--- | :--- | :---: | :---: | :---: |
-| **LinearSVC** | **TF-IDF** | **0.950** | **0.940** | **97.00%** |
-| **Logistic Regression** | TF-IDF | 0.938 | 0.925 | 96.20% |
-| **Complement Naive Bayes** | TF-IDF | 0.932 | 0.918 | 95.80% |
-| **Random Forest** | TF-IDF | 0.895 | 0.880 | 93.40% |
-| **LinearSVC** | Word2Vec (Weighted) | 0.865 | 0.852 | 91.20% |
-| **LinearSVC** | Word2Vec (Average) | 0.840 | 0.825 | 89.80% |
+| **LinearSVC** | **TF-IDF** | **0.941** | **0.941** | **96.75%** |
+| Logistic Regression | TF-IDF | 0.928 | 0.933 | 96.09% |
+| Random Forest | TF-IDF | 0.851 | 0.847 | 89.37% |
+| Complement Naive Bayes | TF-IDF | 0.822 | 0.834 | 89.59% |
+| LinearSVC | Word2Vec (Average) | 0.790 | 0.799 | 87.07% |
+| Logistic Regression | Word2Vec (Average) | 0.775 | 0.786 | 85.79% |
+| LinearSVC | Word2Vec (Weighted) | 0.715 | 0.720 | 80.90% |
+| Logistic Regression | Word2Vec (Weighted) | 0.700 | 0.706 | 78.93% |
+| Random Forest | Word2Vec (Average) | 0.695 | 0.698 | 79.22% |
+| Random Forest | Word2Vec (Weighted) | 0.649 | 0.652 | 75.13% |
+
+* **Catatan Koreksi Kebocoran Data (Leak-free Word2Vec):** Nilai performa representasi Word2Vec pada eksperimen terdahulu tampak lebih tinggi (sekitar 85%) karena adanya *transductive leakage* (pelatihan Skip-Gram melibatkan set validasi dan set uji). Setelah kebocoran diperbaiki dengan membatasi pelatihan Word2Vec Skip-Gram secara induktif hanya pada data latih (*train split*), performa riil model berbasis Word2Vec berada pada kisaran **79.90%** (untuk Average) dan **72.00%** (untuk Weighted), yang secara valid menempatkan fitur **TF-IDF** sebagai pemenang mutlak untuk dataset ulasan pendek ini.
 
 ### Detail Performa Model Terbaik per Kelas (LinearSVC + TF-IDF)
 Rincian metrik evaluasi per-kelas emosi pada data uji:
@@ -141,7 +147,7 @@ Rincian metrik evaluasi per-kelas emosi pada data uji:
 | **Rata-rata Makro (Macro Avg)** | **0.94** | **0.94** | **0.94** | **2738** |
 | **Akurasi Akhir (Accuracy)** | | | **0.97** | **2738** |
 
-* **Kesimpulan:** Model **LinearSVC dengan fitur TF-IDF** adalah yang terbaik dengan F1-Score **0.940** dan Akurasi **97.00%**. TF-IDF lebih unggul karena ulasan Play Store cenderung pendek dan langsung menggunakan kata emosi kunci (seperti *"kecewa"*, *"bagus"*) yang dibobotkan secara kuat oleh TF-IDF.
+* **Kesimpulan:** Model **LinearSVC dengan fitur TF-IDF** adalah yang terbaik dengan F1-Score **0.941** dan Akurasi **96.75%**. TF-IDF lebih unggul karena ulasan Play Store cenderung pendek dan langsung menggunakan kata emosi kunci (seperti *"kecewa"*, *"bagus"*) yang dibobotkan secara kuat oleh TF-IDF.
 
 ### Uji Signifikansi Statistik (McNemar's Test)
 Untuk membuktikan keunggulan model terbaik secara ilmiah, kita melakukan Uji McNemar (exact binomial test) membandingkan model terbaik (**LinearSVC + TF-IDF**) terhadap model pemenang kedua (**Logistic Regression + TF-IDF**).

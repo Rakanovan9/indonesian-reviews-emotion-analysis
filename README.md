@@ -139,6 +139,139 @@ Untuk membuktikan keunggulan model terbaik secara ilmiah, kita melakukan Uji McN
 * **Nilai p-value:** 0.000000 (p < 0.05)
 * **Kesimpulan:** Perbedaan performa antara kedua model adalah **signifikan secara statistik**. Ini membuktikan keunggulan LinearSVC bukan karena kebetulan variasi data split, melainkan memiliki margin keunggulan performa yang valid secara ilmiah.
 
+### Simulasi Hasil Prediksi Teks Kustom
+Berikut adalah simulasi hasil prediksi beberapa kalimat ulasan kustom untuk menguji kemampuan inferensi model terbaik (**LinearSVC + TF-IDF**) secara langsung:
+
+```text
+CONTOH 1:
+Model Terpilih        : LinearSVC (tfidf)
+Teks Ulasan Masukan   : 'aplikasinya jelek banget, tiap buka loading terus sering force close bikin emosi!'
+Hasil Preprocessing   : 'aplikasi jelek banget tiap buka loading terus sering force close bikin emosi'
+
+--- HASIL PREDIKSI EMOSI ---
+Emosi Terdeteksi      : ANGER
+Probabilitas Distribusi:
+  anger   : 98.43%
+  disgust : 0.40%
+  fear    : 0.21%
+  joy     : 0.56%
+  sadness : 0.40%
+
+==================================================
+
+CONTOH 2:
+Model Terpilih        : LinearSVC (tfidf)
+Teks Ulasan Masukan   : 'wah gokil sih fitur barunya keren banget memudahkan saya bersosialisasi makasih ya dev!'
+Hasil Preprocessing   : 'wah gokil fitur baru keren banget mudah sosial makasih ya dev'
+
+--- HASIL PREDIKSI EMOSI ---
+Emosi Terdeteksi      : JOY
+Probabilitas Distribusi:
+  anger   : 6.67%
+  disgust : 8.47%
+  fear    : 13.24%
+  joy     : 65.65%
+  sadness : 5.98%
+
+==================================================
+
+CONTOH 3:
+Model Terpilih        : LinearSVC (tfidf)
+Teks Ulasan Masukan   : 'khawatir banget sama kebocoran data privasi apalagi ada berita akun di hack orang lain'
+Hasil Preprocessing   : 'khawatir banget sama bocor data privasi apalagi ada berita akun hack orang lain'
+
+--- HASIL PREDIKSI EMOSI ---
+Emosi Terdeteksi      : FEAR
+Probabilitas Distribusi:
+  anger   : 4.81%
+  disgust : 5.34%
+  fear    : 80.40%
+  joy     : 5.46%
+  sadness : 4.00%
+
+==================================================
+
+CONTOH 4:
+Model Terpilih        : LinearSVC (tfidf)
+Teks Ulasan Masukan   : 'sedih banget melihat akun saya tidak bisa dipulihkan, padahal banyak data penting di sana.'
+Hasil Preprocessing   : 'sedih banget lihat akun tidak bisa pulih padahal banyak data penting sana'
+
+--- HASIL PREDIKSI EMOSI ---
+Emosi Terdeteksi      : SADNESS
+Probabilitas Distribusi:
+  anger   : 7.77%
+  disgust : 6.06%
+  fear    : 9.13%
+  joy     : 6.06%
+  sadness : 70.99%
+
+==================================================
+
+CONTOH 5:
+Model Terpilih        : LinearSVC (tfidf)
+Teks Ulasan Masukan   : 'aplikasinya ampas, isinya cuma iklan, bot, sama spam yang mengganggu banget. uninstall aja lah.'
+Hasil Preprocessing   : 'aplikasi ampas isi cuma iklan bot sama spam ganggu banget copot aja'
+
+--- HASIL PREDIKSI EMOSI ---
+Emosi Terdeteksi      : DISGUST
+Probabilitas Distribusi:
+  anger   : 21.22%
+  disgust : 76.11%
+  fear    : 0.23%
+  joy     : 1.24%
+  sadness : 1.20%
+
+==================================================
+
+CONTOH 6:
+Model Terpilih        : LinearSVC (tfidf)
+Teks Ulasan Masukan   : 'woy respon dong admin! ini login gagal terus padahal koneksi internet lancar jaya!'
+Hasil Preprocessing   : 'woy respon dong admin login gagal terus padahal koneksi internet lancar jaya'
+
+--- HASIL PREDIKSI EMOSI ---
+Emosi Terdeteksi      : ANGER
+Probabilitas Distribusi:
+  anger   : 89.57%
+  disgust : 2.39%
+  fear    : 4.24%
+  joy     : 2.65%
+  sadness : 1.14%
+
+==================================================
+
+CONTOH 7:
+Model Terpilih        : LinearSVC (tfidf)
+Teks Ulasan Masukan   : 'terima kasih banyak dev, update kali ini keren abis, aplikasinya jadi lancar dan responsif sekali!'
+Hasil Preprocessing   : 'terima kasih banyak dev update kali keren abis aplikasi jadi lancar responsif sekali'
+
+--- HASIL PREDIKSI EMOSI ---
+Emosi Terdeteksi      : JOY
+Probabilitas Distribusi:
+  anger   : 20.36%
+  disgust : 9.67%
+  fear    : 11.61%
+  joy     : 32.08%
+  sadness : 26.28%
+
+==================================================
+
+CONTOH 8:
+Model Terpilih        : LinearSVC (tfidf)
+Teks Ulasan Masukan   : 'was-was banget kalau mau masukin nomor hp, takut disalahgunakan buat penipuan.'
+Hasil Preprocessing   : 'was-was banget kalau mau masukin nomor hp takut disalahgunakan buat tipu'
+
+--- HASIL PREDIKSI EMOSI ---
+Emosi Terdeteksi      : FEAR
+Probabilitas Distribusi:
+  anger   : 24.84%
+  disgust : 14.61%
+  fear    : 37.58%
+  joy     : 12.87%
+  sadness : 10.11%
+
+==================================================
+```
+
 ---
 
 
